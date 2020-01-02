@@ -48,7 +48,7 @@ spec:
       insertPosition:
         index: FIRST
       filterType: NETWORK
-      filterName: otdd
+      filterName: otdd.recorder
       filterConfig:
         is_inbound: true
         report_cluster: outbound|9091||istio-telemetry.istio-system.svc.cluster.local
@@ -66,7 +66,7 @@ spec:
       insertPosition:
         index: FIRST
       filterType: NETWORK
-      filterName: otdd
+      filterName: otdd.recorder
       filterConfig:
         is_inbound: false
         report_cluster: outbound|9091||istio-telemetry.istio-system.svc.cluster.local
