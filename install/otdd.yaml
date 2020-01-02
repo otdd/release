@@ -15,3 +15,53 @@ spec:
       containers:
       - name: otdd-controller
         image: "otdd/otdd-controller:1.0.0-alpha.0"
+
+---
+#rbac_role.yaml
+kind: ClusterRole
+metadata:
+  name: otdd-controller-role
+rules:
+- apiGroups:
+  - apps
+  - core
+  resources:
+  - deployments
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - networking.otdd.io
+  resources:
+  - recorders
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+
+---
+
+#rbac_role_binding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otdd-controller-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otdd-controller-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+
