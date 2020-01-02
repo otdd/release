@@ -18,8 +18,6 @@ usage(){
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-echo $SCRIPTPATH
- 
 NAMESPACE="default"
 INTERVAL=1000
 PROTOCOL="http"
@@ -57,17 +55,26 @@ if [ -z "$TARGETDEPLOYMENT" ]
 then
   usage
 fi
-if [ -z "$PORT" ]
-then
-  usage
-fi
-if [ -z "$1" ]
+if [ -z "$PORT" ] && [ $ACTION != "delete" ]
 then
   usage
 fi
 
+if [ -z "$PORT" ]
+then
+  PORT=8080
+fi
+
 #for i in $@; do :; done
-echo "${ACTION}ing recorder for $TARGETDEPLOYMENT on port:$PORT in namespace:$NAMESPACE, protocol:$PROTOCOL redirecting interval:$INTERVAL"
+if [ $ACTION == "apply" ]
+then
+  echo "${ACTION}ing recorder for $TARGETDEPLOYMENT on port:$PORT in namespace:$NAMESPACE, protocol:$PROTOCOL redirecting interval:$INTERVAL"
+fi
+
+if [ $ACTION == "delete" ]
+then
+  echo "${ACTION}ing recorder for $TARGETDEPLOYMENT"
+fi
 
 # read the yml template from a file and substitute the string 
 # {{MYVARNAME}} with the value of the MYVARVALUE variable
@@ -80,4 +87,4 @@ template=`echo "$template" | sed "s/{{PROTOCOL}}/$PROTOCOL/g"`
 #echo "$template"
 # apply the yml with the substituted value
 
-echo "$template" | kubectl $ACTION -f -
+#echo "$template" | kubectl $ACTION -f -
