@@ -6,7 +6,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sample
+      app: otdd-controller
   template:
     metadata:
       labels:
