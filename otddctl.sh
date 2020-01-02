@@ -87,4 +87,4 @@ template=`echo "$template" | sed "s/{{PROTOCOL}}/$PROTOCOL/g"`
 #echo "$template"
 # apply the yml with the substituted value
 
-#echo "$template" | kubectl $ACTION -f -
+echo "$template" | kubectl $ACTION -f -
