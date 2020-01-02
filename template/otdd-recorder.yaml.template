@@ -1,0 +1,74 @@
+#create the otdd recorder object
+#this will cause a redirector and a recorder deployment benn deployed.
+apiVersion: networking.otdd.io/v1alpha1
+kind: Recorder
+metadata:
+  name: {{TARGETDEPLOYMENT}}
+  namespace: {{NAMESPACE}}
+spec:
+  targetDeployment: {{TARGETDEPLOYMENT}}
+  port: {{PORT}}
+  protocol: {{PROTOCOL}}
+
+---
+
+#create the istio envoy filter on the redirector to redirect requests. 
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{TARGETDEPLOYMENT}}-otdd-redirector
+spec:
+  workloadLabels:
+    otdd: {{TARGETDEPLOYMENT}}-otdd-redirector
+  filters:
+    - listenerMatch:
+        listenerType: SIDECAR_INBOUND
+      insertPosition:
+        index: FIRST
+      filterType: HTTP
+      filterName: otdd.redirector
+      filterConfig:
+        interval : {{INTERVAL}}
+        target_cluster: outbound|{{PORT}}||{{TARGETDEPLOYMENT}}-otdd-recorder.{{NAMESPACE}}.svc.cluster.local
+
+---
+
+#create the istio envoy filter on the recorder to record the otdd test case.
+#the recorder has two parts: inbound and outbound in order to record all inbound/outbound requests.
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{TARGETDEPLOYMENT}}-otdd-recorder-in
+spec:
+  workloadLabels:
+     otdd: {{TARGETDEPLOYMENT}}-otdd-recorder
+  filters:
+    - listenerMatch:
+        listenerType: SIDECAR_INBOUND
+      insertPosition:
+        index: FIRST
+      filterType: NETWORK
+      filterName: otdd
+      filterConfig:
+        is_inbound: true
+        report_cluster: outbound|9091||istio-telemetry.istio-system.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{TARGETDEPLOYMENT}}-otdd-recorder-out
+spec:
+  workloadLabels:
+    otdd: {{TARGETDEPLOYMENT}}-otdd-recorder
+  filters:
+    - listenerMatch:
+        listenerType: SIDECAR_OUTBOUND
+      insertPosition:
+        index: FIRST
+      filterType: NETWORK
+      filterName: otdd
+      filterConfig:
+        is_inbound: false
+        report_cluster: outbound|9091||istio-telemetry.istio-system.svc.cluster.local
+
+

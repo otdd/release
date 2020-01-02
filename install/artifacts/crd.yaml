@@ -1,0 +1,11 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: recorders.networking.otdd.io
+spec:
+  group: networking.otdd.io
+  version: v1alpha1
+  names:
+    kind: Recorder
+    plural: recorders
+  scope: Namespaced
