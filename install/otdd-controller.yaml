@@ -2,6 +2,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: otdd-controller
+  namespace: otdd-system
 spec:
   replicas: 1
   selector:
@@ -22,6 +23,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: otdd-controller-role
+  namespace: otdd-system
 rules:
 - apiGroups:
   - apps
@@ -77,6 +79,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: otdd-controller-rolebinding
+  namespace: otdd-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -84,5 +87,5 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: default
+  namespace: otdd-system
 
