@@ -1,0 +1,18 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: otdd-adapter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otdd-adapter
+  template:
+    metadata:
+      labels:
+        app: otdd-adapter
+    spec:
+      containers:
+      - name: otdd-adapter
+        image: "otdd/otdd-adapter:1.0.0-alpha.0"
+
