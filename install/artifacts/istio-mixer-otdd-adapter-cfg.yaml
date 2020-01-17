@@ -6,7 +6,7 @@ metadata:
 spec:
  adapter: otdd
  connection:
-   address: "otdd-adapter.default.svc.cluster.local:35480" #replaces at runtime by the test
+   address: "otdd-adapter.otdd-system.svc.cluster.local:35480" #replaces at runtime by the test
  params:
    addr: "otddserver:18764"
 ---
