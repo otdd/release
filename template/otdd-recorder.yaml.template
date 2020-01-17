@@ -50,6 +50,7 @@ spec:
       filterType: NETWORK
       filterName: otdd.recorder
       filterConfig:
+        module_name: {{TARGETDEPLOYMENT}}.{{NAMESPACE}}
         is_inbound: true
         report_cluster: outbound|9091||istio-telemetry.istio-system.svc.cluster.local
 ---
@@ -68,6 +69,7 @@ spec:
       filterType: NETWORK
       filterName: otdd.recorder
       filterConfig:
+        module_name: {{TARGETDEPLOYMENT}}.{{NAMESPACE}}
         is_inbound: false
         report_cluster: outbound|9091||istio-telemetry.istio-system.svc.cluster.local
 
