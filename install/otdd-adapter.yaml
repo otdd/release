@@ -26,6 +26,6 @@ metadata:
     app: otdd-adapter
 spec:
   ports:
-  - port: 35480
+  - port: 18764
   selector:
     app: otdd-adapter
