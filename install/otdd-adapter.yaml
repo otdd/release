@@ -2,6 +2,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: otdd-adapter
+  namespace: otdd-system
 spec:
   replicas: 1
   selector:
@@ -15,4 +16,16 @@ spec:
       containers:
       - name: otdd-adapter
         image: "otdd/otdd-adapter:1.0.0-alpha.0"
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otdd-adapter
+  namespace: otdd-system
+  labels:
+    app: otdd-adapter
+spec:
+  ports:
+  - port: 18764
+  selector:
+    app: otdd-adapter
