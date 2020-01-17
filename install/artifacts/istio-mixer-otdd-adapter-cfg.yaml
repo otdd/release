@@ -6,9 +6,9 @@ metadata:
 spec:
  adapter: otdd
  connection:
-   address: "otdd-adapter.otdd-system.svc.cluster.local:35480" #replaces at runtime by the test
+   address: "otdd-adapter.otdd-system.svc.cluster.local:18764" 
  params:
-   addr: "otddserver:18764"
+   addr: "otddserver:8764"
 ---
 
 # instance for template metric
