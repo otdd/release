@@ -1,0 +1,34 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: otdd-server
+  namespace: otdd-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otdd-server
+  template:
+    metadata:
+      labels:
+        app: otdd-server
+    spec:
+      containers:
+      - name: otdd-server
+        image: "otdd/otddserver:0.1.0"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otdd-server
+  namespace: otdd-system
+  labels:
+    app: otdd-server
+spec:
+  ports:
+  - port: 8764
+    name: grpc
+  - port: 8080
+    name: http
+  selector:
+    app: otdd-server
