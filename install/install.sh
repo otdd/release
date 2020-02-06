@@ -25,11 +25,11 @@ kubectl -n istio-system get configmap istio-sidecar-injector -o yaml | sed "s/is
 kubectl -n istio-system rollout restart deploy/istio-sidecar-injector
 
 #create otdd-system namespace
-kubectl apply -f namespace.yaml
+kubectl apply -f artifacts/namespace.yaml
 
 #install otdd recorder crd and it's k8s controller
 for i in artifacts/crd*yaml; do kubectl apply -f $i; done
-kubectl apply -f otdd-controller.yaml
+kubectl apply -f artifacts/otdd-controller.yaml
 #install istio mixer otdd adapter
 for i in artifacts/istio-mixer*.yaml; do kubectl apply -f $i; done
-kubectl apply -f otdd-adapter.yaml
+kubectl apply -f artifacts/otdd-adapter.yaml

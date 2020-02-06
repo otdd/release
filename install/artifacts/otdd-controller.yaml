@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: otdd-controller
-        image: "otdd/otdd-controller:1.0.0-alpha.0"
+        image: "otdd/otdd-controller:0.1.0"
 
 ---
 #rbac_role.yaml
