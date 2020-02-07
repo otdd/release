@@ -1,3 +1,18 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: otddserver-pvc
+  namespace: otdd-system
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchLabels:
+      name: "otddserver-pv"
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -13,9 +28,16 @@ spec:
       labels:
         app: otdd-server
     spec:
+      volumes:
+      - name: otddserver-pvc
+        persistentVolumeClaim:
+          claimName: otddserver-pvc
       containers:
       - name: otdd-server
         image: "otdd/otddserver:0.1.0"
+        volumeMounts:
+        - mountPath: "/otddserver"
+          name: otddserver-pvc
 ---
 apiVersion: v1
 kind: Service
