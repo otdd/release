@@ -52,5 +52,6 @@ spec:
     name: grpc
   - port: 8080
     name: http
+  type: LoadBalancer
   selector:
     app: otdd-server
