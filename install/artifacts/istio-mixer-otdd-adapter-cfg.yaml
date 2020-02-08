@@ -8,7 +8,7 @@ spec:
  connection:
    address: "otdd-adapter.otdd-system.svc.cluster.local:18764" 
  params:
-   addr: "otddserver:8764"
+   addr: "otdd-server:8764"
 ---
 
 # instance for template metric
@@ -35,4 +35,5 @@ spec:
  - handler: otdd-handler.istio-system
    instances:
    - otdd-logentry
+ match: size(otdd.testcase|"") > 0
 ---
