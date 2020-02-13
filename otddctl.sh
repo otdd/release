@@ -169,5 +169,5 @@ then
       done
     done
   done
-  echo "all done."
+  echo "all done!"
 fi
