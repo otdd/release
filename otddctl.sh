@@ -16,6 +16,11 @@ usage(){
 	exit 1
 }
 
+if ! jq_loc="$(type -p "jq")" || [[ -z $jq_loc ]]; then
+  echo "jq not installed. please refer to https://stedolan.github.io/jq/download/"
+  exit
+fi
+
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 
