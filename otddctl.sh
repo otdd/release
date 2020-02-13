@@ -81,12 +81,12 @@ fi
 #for i in $@; do :; done
 if [ $ACTION == "apply" ]
 then
-  echo "${ACTION}ing recorder for $TARGETDEPLOYMENT on port:$PORT in namespace:$NAMESPACE, protocol:$PROTOCOL redirecting interval:$INTERVAL"
+  echo "applying recorder for $TARGETDEPLOYMENT on port:$PORT in namespace:$NAMESPACE, protocol:$PROTOCOL redirecting interval:$INTERVAL"
 fi
 
 if [ $ACTION == "delete" ]
 then
-  echo "${ACTION}ing recorder for $TARGETDEPLOYMENT"
+  echo "deleting recorder for $TARGETDEPLOYMENT"
 fi
 
 #check whether the target deployment exists
@@ -115,8 +115,27 @@ then
   kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config" |awk -v version="$ISTIO_VERSION" '{gsub(/name:[ ]+istio-proxy.+[ ]{4}ports/,"name: istio-proxy\\n    image: docker.io/otdd/proxyv2:" version "-otdd.0.1.0\\n    ports"); print $0}' > .otdd_tmp
   VALUE=`cat .otdd_tmp`
   rm -rf .otdd_tmp
+  INJECTOR_BEFORE=`kubectl -n istio-system get pods |grep istio-sidecar-injector|awk '{print $1}'`
+  echo "changing istio-sidecar-injector config and restart it.."
   kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config=$VALUE" | kubectl apply -f -
   kubectl -n istio-system rollout restart deploy/istio-sidecar-injector
+  FOUND="1"
+  while [ $FOUND == "1" ]
+  do
+    FOUND="0"
+    echo "waiting istio-sidecar-injector to be fully ready.. please do not kill this script."
+    sleep 3
+    INJECTOR_AFTER=`kubectl -n istio-system get pods |grep istio-sidecar-injector|awk '{print $1}'`
+    for i in $INJECTOR_BEFORE ; do
+      for j in $INJECTOR_AFTER ; do
+        if [[ $i == $j ]]
+        then
+             # some old injector still not terminated.
+             FOUND="1"
+        fi
+      done
+    done
+  done
 fi
 #echo "$template"
 # apply the yml with the substituted value
@@ -129,6 +148,26 @@ then
   kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config" |awk '{gsub(/name:[ ]+istio-proxy.+[ ]{4}ports/,"name: istio-proxy\\n  {{- if contains \\\"/\\\" .Values.global.proxy.image }}\\n    image: \\\"{{ annotation .ObjectMeta `sidecar.istio.io/proxyImage` .Values.global.proxy.image }}\\\"\\n  {{- else }}\\n    image: \\\"{{ annotation .ObjectMeta `sidecar.istio.io/proxyImage` .Values.global.hub }}/{{ .Values.global.proxy.image }}:{{ .Values.global.tag }}\\\"\\n  {{- end }}\\n    ports"); print $0}' > .otdd_tmp_uninstall
   VALUE=`cat .otdd_tmp_uninstall`
   rm -rf .otdd_tmp_uninstall
+  INJECTOR_BEFORE=`kubectl -n istio-system get pods |grep istio-sidecar-injector|awk '{print $1}'`
+  echo "restoring back istio-sidecar-injector config and restart it.."
   kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config=$VALUE" | kubectl apply -f -
   kubectl -n istio-system rollout restart deploy/istio-sidecar-injector
+  FOUND="1"
+  while [ $FOUND == "1" ]
+  do
+    FOUND="0"
+    echo "waiting istio-sidecar-injector to be fully ready.. "
+    sleep 3
+    INJECTOR_AFTER=`kubectl -n istio-system get pods |grep istio-sidecar-injector|awk '{print $1}'`
+    for i in $INJECTOR_BEFORE ; do
+      for j in $INJECTOR_AFTER ; do
+        if [[ $i == $j ]]
+        then
+             # some old injector still not terminated.
+             FOUND="1"
+        fi
+      done
+    done
+  done
+  echo "all done."
 fi
