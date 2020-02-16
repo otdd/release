@@ -1,0 +1,368 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: front-api
+  namespace: otdd-example
+  labels:
+    app: front-api
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-api
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: front-api
+        version: v1
+    spec:
+      containers:
+      - name: front-api
+        image: "otdd/example-front-api:0.1.0"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-api
+  namespace: otdd-example
+  labels:
+    app: front-api
+spec:
+  ports:
+  - port: 8080
+    name: http
+  type: LoadBalancer
+  selector:
+    app: front-api
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: service-http
+  namespace: otdd-example
+  labels:
+    app: service-http
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-http
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: service-http
+        version: v1
+    spec:
+      containers:
+      - name: service-http
+        image: "otdd/example-service-http:0.1.0"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-http
+  namespace: otdd-example
+  labels:
+    app: service-http
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: service-http
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: service-grpc
+  namespace: otdd-example
+  labels:
+    app: service-grpc
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-grpc
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: service-grpc
+        version: v1
+    spec:
+      containers:
+      - name: service-grpc
+        image: "otdd/example-service-grpc:0.1.0"
+        ports:
+        - containerPort: 8764
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-grpc
+  namespace: otdd-example
+  labels:
+    app: service-grpc
+spec:
+  ports:
+  - port: 8764
+    name: grpc
+  selector:
+    app: service-grpc
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: service-thrift
+  namespace: otdd-example
+  labels:
+    app: service-thrift
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-thrift
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: service-thrift
+        version: v1
+    spec:
+      containers:
+      - name: service-thrift
+        image: "otdd/example-service-thrift:0.1.0"
+        ports:
+        - containerPort: 9001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-thrift
+  namespace: otdd-example
+  labels:
+    app: service-thrift
+spec:
+  ports:
+  - port: 9001
+    name: thrift
+  selector:
+    app: service-thrift
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: dependent-http
+  namespace: otdd-example
+  labels:
+    app: dependent-http
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dependent-http
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: dependent-http
+        version: v1
+    spec:
+      containers:
+      - name: dependent-http
+        image: "otdd/example-dependent-http:0.1.0"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dependent-http
+  namespace: otdd-example
+  labels:
+    app: dependent-http
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: dependent-http
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: dependent-grpc
+  namespace: otdd-example
+  labels:
+    app: dependent-grpc
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dependent-grpc
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: dependent-grpc
+        version: v1
+    spec:
+      containers:
+      - name: dependent-grpc
+        image: "otdd/example-dependent-grpc:0.1.0"
+        ports:
+        - containerPort: 8764
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dependent-grpc
+  namespace: otdd-example
+  labels:
+    app: dependent-grpc
+spec:
+  ports:
+  - port: 8764
+    name: grpc
+  selector:
+    app: dependent-grpc
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: dependent-thrift
+  namespace: otdd-example
+  labels:
+    app: dependent-thrift
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dependent-thrift
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: dependent-thrift
+        version: v1
+    spec:
+      containers:
+      - name: dependent-thrift
+        image: "otdd/example-dependent-thrift:0.1.0"
+        ports:
+        - containerPort: 9001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dependent-thrift
+  namespace: otdd-example
+  labels:
+    app: dependent-thrift
+spec:
+  ports:
+  - port: 9001
+    name: thrift
+  selector:
+    app: dependent-thrift
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: dependent-redis
+  namespace: otdd-example
+  labels:
+    app: dependent-redis
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dependent-redis
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: dependent-redis
+        version: v1
+    spec:
+      containers:
+      - name: dependent-redis
+        image: "redis:5.0.7"
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dependent-redis
+  namespace: otdd-example
+  labels:
+    app: dependent-redis
+spec:
+  ports:
+  - port: 6379
+    name: redis
+  selector:
+    app: dependent-redis
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: dependent-mysql
+  namespace: otdd-example
+  labels:
+    app: dependent-mysql
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dependent-mysql
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: dependent-mysql
+        version: v1
+    spec:
+      containers:
+      - name: dependent-mysql
+        image: "otdd/example-dependent-mysql:0.1.0"
+       # ports:
+       # - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dependent-mysql
+  namespace: otdd-example
+  labels:
+    app: dependent-mysql
+spec:
+  ports:
+  - port: 3306
+    name: mysql
+  selector:
+    app: dependent-mysql

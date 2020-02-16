@@ -91,12 +91,26 @@ fi
 
 #check whether the target deployment exists
 
-kubectl -n "$NAMESPACE" get deployment "$TARGETDEPLOYMENT" >/dev/null 2>&1
-RESULT=`echo $?`
-if [ $RESULT != "0" ]
+if [ $ACTION == "apply" ]
 then
-  echo "target deployment: "$TARGETDEPLOYMENT" not found in namespace: "$NAMESPACE" ( kubectl -n "$NAMESPACE" get deployment "$TARGETDEPLOYMENT" exist with code !=0 ) "
-  exit 1
+  kubectl -n "$NAMESPACE" get deployment "$TARGETDEPLOYMENT" >/dev/null 2>&1
+  RESULT=`echo $?`
+  if [ $RESULT != "0" ]
+  then
+    echo "target deployment: "$TARGETDEPLOYMENT" not found in namespace: "$NAMESPACE" ( kubectl -n "$NAMESPACE" get deployment "$TARGETDEPLOYMENT" exist with code !=0 ) "
+    exit 1
+  fi
+fi
+
+if [ $ACTION == "delete" ]
+then
+  kubectl -n "$NAMESPACE" get deployment "$TARGETDEPLOYMENT-otdd-recorder" >/dev/null 2>&1
+  RESULT=`echo $?`
+  if [ $RESULT != "0" ]
+  then
+    echo "target deployment: "$TARGETDEPLOYMENT" not found in namespace: "$NAMESPACE" ( kubectl -n "$NAMESPACE" get deployment "$TARGETDEPLOYMENT-otdd-recorder" exist with code !=0 ) "
+    exit 1
+  fi
 fi
 
 # read the yml template from a file and substitute the string 
