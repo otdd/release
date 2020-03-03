@@ -10,4 +10,5 @@ This release project contains:
 
 You can just download them from the releases tab and start using otdd!
 
+Please refer to [get started](https://otdd.io/getstarted) to learn about the setup.
 
