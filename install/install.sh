@@ -6,6 +6,16 @@ ISTIO_VERSION=`kubectl -n istio-system get configmap istio-sidecar-injector -o j
 ISTIO_VERSION="${ISTIO_VERSION%\"}"
 ISTIO_VERSION="${ISTIO_VERSION#\"}"
 
+if [ -z $ISTIO_VERSION ]; then
+	#before 1.2 the istio version is hard coded.
+	ISTIO_VERSION=`kubectl -n istio-system get configmap istio-sidecar-injector -o jsonpath='{.data.config}'|grep image |grep proxyv2|awk -F':' '{print $3}'|awk -F'"' '{print $1}'`
+fi
+
+if [ -z $ISTIO_VERSION ]; then
+	echo "cannot determine istio version. please install istio first."
+	exit 1
+fi
+
 echo "istio version is $ISTIO_VERSION"
 
 DIGITS=$(echo $ISTIO_VERSION | tr "\." "\n")

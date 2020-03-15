@@ -7,7 +7,7 @@ usage(){
 	echo -e "\t-n namespace: \t\t\tthe target depoyment's namespace. default value: default"
 	echo -e "\t-i interval: \t\t\tthe redirector's interval(in milisecond) to redirect the request. defaults value: 1000"
 	echo -e "\t-P protocol: \t\t\tthe target depoyment's protocol. defaults value: http"
-        echo -e "\t-v istioVersion (optional): \t\tspecify the istio version"
+        echo -e "\t-v istioVersion (optional): \tspecify the istio version"
 	echo ""
 	echo -e "\texamples: \t\t\totddctl.sh apply -t reviews-v2 -p 9080 -n default -i 1000 -P http"
 	echo -e "\t\t\t\t\totddctl.sh delete -t reviews-v2 -p 9080 -n default -i 1000 -P http"
@@ -124,6 +124,16 @@ then
   ISTIO_VERSION="${ISTIO_VERSION%\"}"
   ISTIO_VERSION="${ISTIO_VERSION#\"}"
 
+  if [ -z $ISTIO_VERSION ]; then
+    #before 1.2 the istio version is hard coded.
+    ISTIO_VERSION=`kubectl -n istio-system get configmap istio-sidecar-injector -o jsonpath='{.data.config}'|grep image |grep proxyv2|awk -F':' '{print $3}'|awk -F'"' '{print $1}'`
+  fi
+
+  if [ -z $ISTIO_VERSION ]; then
+    echo "cannot determine istio version. please install istio first."
+    exit 1
+  fi
+
   echo "installed istio version is $ISTIO_VERSION"
 
   DIGITS=$(echo $ISTIO_VERSION | tr "\." "\n")
@@ -139,9 +149,10 @@ then
           INDEX=$(( $INDEX + 1 ))
   done
 
+  echo "MAJOR_VERSION $MAJOR_VERSION MINOR_VERSION $MINOR_VERSION"
   #before 1.5.0, it's an standalone istio-sidecar-injector to inject the istio proxy.  
   if [[ $MAJOR_VERSION -eq 1 && $MINOR_VERSION -lt 5  ]]; then 
-    STIO_INSTANCE="istio-sidecar-injector"
+    ISTIO_INSTANCE="istio-sidecar-injector"
   else
     ISTIO_INSTANCE="istiod"
   fi
@@ -164,6 +175,7 @@ then
 
   #replace istio proxyv2 image to otdd proxyv2 to include otdd redirect/recorder plugins by changing the .Values.global.proxy.image in the configmap.
   #write to a temp file then VALUE=`cat .otdd_tmp instead of using VALUE=`...` directly because the \n will lost wiredly.
+  ORIGIN_CONFIG=`kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config"`
   kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config" |awk -v version="$ISTIO_VERSION" '{gsub(/name:[ ]+istio-proxy.+[ ]{4}ports/,"name: istio-proxy\\n    image: docker.io/otdd/proxyv2:" version "-otdd.0.1.0\\n    ports"); print $0}' > .otdd_tmp
   VALUE=`cat .otdd_tmp`
   rm -rf .otdd_tmp
@@ -197,12 +209,13 @@ echo "$template" | kubectl $ACTION -f -
 if [ $ACTION == "apply" ]
 then
   #restore back the istio injector config
-  kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config" |awk '{gsub(/name:[ ]+istio-proxy.+[ ]{4}ports/,"name: istio-proxy\\n  {{- if contains \\\"/\\\" .Values.global.proxy.image }}\\n    image: \\\"{{ annotation .ObjectMeta `sidecar.istio.io/proxyImage` .Values.global.proxy.image }}\\\"\\n  {{- else }}\\n    image: \\\"{{ annotation .ObjectMeta `sidecar.istio.io/proxyImage` .Values.global.hub }}/{{ .Values.global.proxy.image }}:{{ .Values.global.tag }}\\\"\\n  {{- end }}\\n    ports"); print $0}' > .otdd_tmp_uninstall
-  VALUE=`cat .otdd_tmp_uninstall`
-  rm -rf .otdd_tmp_uninstall
+  #kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config" |awk '{gsub(/name:[ ]+istio-proxy.+[ ]{4}ports/,"name: istio-proxy\\n  {{- if contains \\\"/\\\" .Values.global.proxy.image }}\\n    image: \\\"{{ annotation .ObjectMeta `sidecar.istio.io/proxyImage` .Values.global.proxy.image }}\\\"\\n  {{- else }}\\n    image: \\\"{{ annotation .ObjectMeta `sidecar.istio.io/proxyImage` .Values.global.hub }}/{{ .Values.global.proxy.image }}:{{ .Values.global.tag }}\\\"\\n  {{- end }}\\n    ports"); print $0}' > .otdd_tmp_uninstall
+  #VALUE=`cat .otdd_tmp_uninstall`
+  #rm -rf .otdd_tmp_uninstall
   INJECTOR_BEFORE=`kubectl -n istio-system get pods |grep $ISTIO_INSTANCE|awk '{print $1}'`
   echo "restoring back istio-sidecar-injector config and restart it.."
-  kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config=$VALUE" | kubectl apply -f -
+  #kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config=$VALUE" | kubectl apply -f -
+  kubectl -n istio-system get configmap istio-sidecar-injector -o json | jq ".data.config=$ORIGIN_CONFIG" | kubectl apply -f -
   kubectl -n istio-system rollout restart deploy/$ISTIO_INSTANCE
   FOUND="1"
   while [ $FOUND == "1" ]
