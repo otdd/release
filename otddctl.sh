@@ -146,7 +146,7 @@ then
     ISTIO_INSTANCE="istiod"
   fi
 
-if [[ ! -z "$SPECIFIED_ISTIO_VERSION " ]]
+if [ ! -z "$SPECIFIED_ISTIO_VERSION" ]
 then
   echo "applying recorder for specific istio version $SPECIFIED_ISTIO_VERSION"
   ISTIO_VERSION=$SPECIFIED_ISTIO_VERSION
