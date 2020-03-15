@@ -350,8 +350,8 @@ spec:
       containers:
       - name: dependent-mysql
         image: "otdd/example-dependent-mysql:0.1.0"
-       # ports:
-       # - containerPort: 3306
+        #ports:
+        #- containerPort: 3306
 ---
 apiVersion: v1
 kind: Service

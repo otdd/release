@@ -17,6 +17,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: {{TARGETDEPLOYMENT}}-otdd-redirector
+  namespace: {{NAMESPACE}}
 spec:
   workloadLabels:
     otdd: {{TARGETDEPLOYMENT}}-otdd-redirector
@@ -39,6 +40,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: {{TARGETDEPLOYMENT}}-otdd-recorder-in
+  namespace: {{NAMESPACE}}
 spec:
   workloadLabels:
      otdd: {{TARGETDEPLOYMENT}}-otdd-recorder
@@ -59,6 +61,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: {{TARGETDEPLOYMENT}}-otdd-recorder-out
+  namespace: {{NAMESPACE}}
 spec:
   workloadLabels:
     otdd: {{TARGETDEPLOYMENT}}-otdd-recorder
