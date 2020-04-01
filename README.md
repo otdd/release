@@ -12,4 +12,4 @@ You can just download them from the releases tab and start using otdd!
 
 Please refer to [get started](https://otdd.io/getstarted) to learn about the setup.
 
-e-mail me at dev@otdd.io or follow me in weibo at 流量回放-OTDD
+e-mail me at dev@otdd.io or follow me in weibo at yipjie87
